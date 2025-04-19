@@ -46,6 +46,15 @@ public class PlayerController : MonoBehaviour
                                         Time.deltaTime * zoomSpeed);
             normalPoint.gameObject.SetActive(false);
             aimPoint.gameObject.SetActive(true);
+            if (Input.GetMouseButtonDown(0))
+            {
+                Ray rayo = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(rayo, out hit))
+                {
+                    Debug.Log("El disparo ha impactado con algo");
+                }
+            }
         }
         else
         {
