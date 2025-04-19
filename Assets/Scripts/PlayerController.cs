@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,6 +17,12 @@ public class PlayerController : MonoBehaviour
     private float mouseSensitivity = 5f;
     private float verticalRotation = 0f;
     [SerializeField] private float verticalRotationLimit = 45.0f;
+
+    //MIRA
+    private Vector2 originalScale, zoomScale;
+    [SerializeField] private Image normalPoint, aimPoint;
+    [SerializeField] private float zoomSpeed, zoomCapacity;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -28,6 +35,25 @@ public class PlayerController : MonoBehaviour
     {
         moveCharacter();
         moveCamera();
+        apuntarYDesapuntar();
+    }
+
+    private void apuntarYDesapuntar()
+    {
+        if (Input.GetMouseButton(1))
+        {
+            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, zoomCapacity,
+                                        Time.deltaTime * zoomSpeed);
+            normalPoint.gameObject.SetActive(false);
+            aimPoint.gameObject.SetActive(true);
+        }
+        else
+        {
+            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, 60f, 
+                                        Time.deltaTime * zoomSpeed);
+            normalPoint.gameObject.SetActive(true);
+            aimPoint.gameObject.SetActive(false);
+        }
     }
 
     private void moveCamera()
