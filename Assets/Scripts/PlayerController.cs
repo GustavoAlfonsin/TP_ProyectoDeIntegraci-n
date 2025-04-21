@@ -53,6 +53,10 @@ public class PlayerController : MonoBehaviour
                 if (Physics.Raycast(rayo, out hit))
                 {
                     Debug.Log("El disparo ha impactado con algo");
+                    if (hit.collider.CompareTag("Enemy"))
+                    {
+                        hit.collider.gameObject.GetComponent<ZombieController>().getDamage(10);
+                    }
                 }
             }
         }
