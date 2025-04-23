@@ -7,7 +7,9 @@ public class ZombieController : MonoBehaviour
 {
     // Información del enemigo
     private float hpMax, currentHp;
-    private float damage;
+    private float damage = 5;
+    private float damageCountDown = 5;
+    private bool justAttacked;
 
     // Componentes
     private NavMeshAgent _agent;
@@ -25,7 +27,12 @@ public class ZombieController : MonoBehaviour
     {
         if (Vector3.Distance(transform.position, _player.position) < 2)
         {
-            Debug.Log("Estoy cerca del jugador");
+            if (!justAttacked)
+            {
+                _player.GetComponent<PlayerController>().getDamage(damage);
+                StartCoroutine(attackAgain());
+                Debug.Log("recien ataco al jugador");
+            }
         }
         else
         {
@@ -42,5 +49,12 @@ public class ZombieController : MonoBehaviour
             //animacion de muerte
         }
         Debug.Log($"vida Zombie: {currentHp}");
+    }
+
+    IEnumerator attackAgain()
+    {
+        justAttacked = true;
+        yield return new WaitForSeconds(damageCountDown);
+        justAttacked = false;
     }
 }

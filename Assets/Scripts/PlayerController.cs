@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     private float jumpHeight = 2.0f;
     private CharacterController controller;
     private Vector3 playerSpeed;
+    private float maxHp, Hp;
 
     //CAMARA
     private float mouseSensitivity = 5f;
@@ -28,6 +29,9 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        maxHp = 100;
+        Hp = maxHp;
+        UIController.Instance.HpUpdate(Hp);
     }
 
 
@@ -36,6 +40,10 @@ public class PlayerController : MonoBehaviour
         moveCharacter();
         moveCamera();
         apuntarYDesapuntar();
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            getDamage(10);
+        }
     }
 
     private void apuntarYDesapuntar()
@@ -99,5 +107,17 @@ public class PlayerController : MonoBehaviour
         {
             playerSpeed.y += Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
+    }
+
+    public void getDamage(float injury)
+    {
+        Hp -= injury;
+        if (Hp <= 0)
+        {
+            Hp = 0;
+            //mostrar animación de muerte
+            //Terminar la partida
+        }
+        UIController.Instance.HpUpdate(Hp);
     }
 }
