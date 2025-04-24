@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Image normalPoint, aimPoint;
     [SerializeField] private float zoomSpeed, zoomCapacity;
 
+    //COMPAÑERO 
+    [SerializeField] GameObject partner;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -40,9 +43,26 @@ public class PlayerController : MonoBehaviour
         moveCharacter();
         moveCamera();
         apuntarYDesapuntar();
+        invocarCompañero();
         if (Input.GetKeyDown(KeyCode.Y))
         {
             getDamage(10);
+        }
+    }
+
+    private void invocarCompañero()
+    {
+        if (Input.GetKeyDown(KeyCode.G) && partner != null)
+        {
+            if (!partner.gameObject.activeInHierarchy)
+            {
+                partner.transform.localPosition = transform.localPosition + Vector3.forward * 1f + Vector3.right * 1.5f;
+                partner.gameObject.SetActive(true);
+            }
+            else
+            {
+                partner.gameObject.SetActive(false);
+            }
         }
     }
 
