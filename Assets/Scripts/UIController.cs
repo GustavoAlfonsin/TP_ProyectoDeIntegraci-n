@@ -9,6 +9,7 @@ public class UIController : MonoBehaviour
     public static UIController Instance;
 
     [SerializeField] TextMeshProUGUI hpTxt;
+    [SerializeField] TextMeshProUGUI energyTxt;
 
     private void Awake()
     {
@@ -38,5 +39,10 @@ public class UIController : MonoBehaviour
     public void HpUpdate(float life)
     {
         hpTxt.text = $"HP: {life}";
+    }
+
+    public void EnergyUpdate(float energy)
+    {
+        energyTxt.text = $"Energia: {energy}";
     }
 }

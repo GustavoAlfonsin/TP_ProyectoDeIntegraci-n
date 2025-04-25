@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ public class PlayerController : MonoBehaviour
     private float jumpHeight = 2.0f;
     private CharacterController controller;
     private Vector3 playerSpeed;
-    private float maxHp, Hp;
+    private float maxHp, Hp, maxEnergy, energy;
 
     //CAMARA
     private float mouseSensitivity = 5f;
@@ -26,6 +27,11 @@ public class PlayerController : MonoBehaviour
 
     //COMPAÑERO 
     [SerializeField] GameObject partner;
+    private bool activePartner;
+    private float energyExpenditure = 2f;
+    private float energyIncrease = 4f;
+    private float wearTime = 1.5f;
+    private float partnerTimer;
 
     void Start()
     {
@@ -34,7 +40,11 @@ public class PlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         maxHp = 100;
         Hp = maxHp;
+        maxEnergy = 50;
+        energy = maxEnergy;
         UIController.Instance.HpUpdate(Hp);
+        activePartner = partner.activeInHierarchy;
+        partnerTimer = 0;
     }
 
 
@@ -44,9 +54,50 @@ public class PlayerController : MonoBehaviour
         moveCamera();
         apuntarYDesapuntar();
         invocarCompañero();
+        if (activePartner)
+        {
+            consumirMagia();
+        }
+        else
+        {
+            recargarMagia();
+        }
+        
         if (Input.GetKeyDown(KeyCode.Y))
         {
             getDamage(10);
+        }
+    }
+
+    private void recargarMagia()
+    {
+        partnerTimer += Time.deltaTime;
+        if (partnerTimer >= wearTime)
+        {
+            partnerTimer = 0;
+            energy += energyIncrease;
+            if (energy >= maxEnergy)
+            {
+                energy = maxEnergy;
+            }
+            UIController.Instance.EnergyUpdate(energy);
+        }
+    }
+
+    private void consumirMagia()
+    {
+        partnerTimer += Time.deltaTime;
+        if (partnerTimer >= wearTime)
+        {
+            partnerTimer = 0;
+            energy -= energyExpenditure;
+            if (energy <= 0)
+            {
+                energy = 0;
+                partner.gameObject.SetActive(false);
+                activePartner = false;
+            }
+            UIController.Instance.EnergyUpdate(energy);
         }
     }
 
@@ -58,10 +109,12 @@ public class PlayerController : MonoBehaviour
             {
                 partner.transform.localPosition = transform.localPosition + Vector3.forward * 1f + Vector3.right * 1.5f;
                 partner.gameObject.SetActive(true);
+                activePartner = true;
             }
             else
             {
                 partner.gameObject.SetActive(false);
+                activePartner = false;
             }
         }
     }
