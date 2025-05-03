@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
+using Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,27 +16,16 @@ public class PlayerController : MonoBehaviour
     private Vector3 playerSpeed;
     private float maxHp, Hp, maxEnergy, energy;
 
-    //CAMARA
-    private float mouseSensitivity = 5f;
-    private float verticalRotation = 0f;
-    [SerializeField] private float verticalRotationLimit = 45.0f;
-
     //MIRA
     private Vector2 originalScale, zoomScale;
     [SerializeField] private Image normalPoint, aimPoint;
     [SerializeField] private float zoomSpeed, zoomCapacity;
-
-    //COMPAÑERO 
-    [SerializeField] GameObject partner;
-    private bool activePartner;
-    private float energyExpenditure = 2f;
-    private float energyIncrease = 4f;
-    private float wearTime = 1.5f;
-    private float partnerTimer;
+    [HideInInspector] public CinemachineVirtualCamera vCam;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        vCam = GetComponentInChildren<CinemachineVirtualCamera>();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         maxHp = 100;
@@ -43,79 +33,16 @@ public class PlayerController : MonoBehaviour
         maxEnergy = 50;
         energy = maxEnergy;
         UIController.Instance.HpUpdate(Hp);
-        activePartner = partner.activeInHierarchy;
-        partnerTimer = 0;
     }
 
 
     void Update()
     {
         moveCharacter();
-        moveCamera();
         apuntarYDesapuntar();
-        invocarCompañero();
-        if (activePartner)
-        {
-            consumirMagia();
-        }
-        else
-        {
-            recargarMagia();
-        }
-        
         if (Input.GetKeyDown(KeyCode.Y))
         {
             getDamage(10);
-        }
-    }
-
-    private void recargarMagia()
-    {
-        partnerTimer += Time.deltaTime;
-        if (partnerTimer >= wearTime)
-        {
-            partnerTimer = 0;
-            energy += energyIncrease;
-            if (energy >= maxEnergy)
-            {
-                energy = maxEnergy;
-            }
-            UIController.Instance.EnergyUpdate(energy);
-        }
-    }
-
-    private void consumirMagia()
-    {
-        partnerTimer += Time.deltaTime;
-        if (partnerTimer >= wearTime)
-        {
-            partnerTimer = 0;
-            energy -= energyExpenditure;
-            if (energy <= 0)
-            {
-                energy = 0;
-                partner.gameObject.SetActive(false);
-                activePartner = false;
-            }
-            UIController.Instance.EnergyUpdate(energy);
-        }
-    }
-
-    private void invocarCompañero()
-    {
-        if (Input.GetKeyDown(KeyCode.G) && partner != null)
-        {
-            if (!partner.gameObject.activeInHierarchy)
-            {
-                partner.transform.localPosition = transform.localPosition + Vector3.forward * 1f + Vector3.right * 1.5f;
-                partner.gameObject.SetActive(true);
-                activePartner = true;
-            }
-            else
-            {
-                partner.gameObject.SetActive(false);
-                activePartner = false;
-            }
         }
     }
 
@@ -123,7 +50,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButton(1))
         {
-            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, zoomCapacity,
+            vCam.m_Lens.FieldOfView = Mathf.Lerp(Camera.main.fieldOfView, zoomCapacity,
                                         Time.deltaTime * zoomSpeed);
             normalPoint.gameObject.SetActive(false);
             aimPoint.gameObject.SetActive(true);
@@ -143,23 +70,11 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, 60f, 
+            vCam.m_Lens.FieldOfView = Mathf.Lerp(Camera.main.fieldOfView, 60f, 
                                         Time.deltaTime * zoomSpeed);
             normalPoint.gameObject.SetActive(true);
             aimPoint.gameObject.SetActive(false);
         }
-    }
-
-    private void moveCamera()
-    {
-        // Rotación horizontal
-        float horizontalMouseRotation = Input.GetAxis("Mouse X") * mouseSensitivity;
-        transform.Rotate(0,horizontalMouseRotation,0);
-
-        // Rotación Vertical
-        verticalRotation -= Input.GetAxis("Mouse Y") * mouseSensitivity;
-        verticalRotation = Mathf.Clamp(verticalRotation,-verticalRotationLimit, verticalRotationLimit);
-        Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation,0,0);
     }
 
     private void moveCharacter()
