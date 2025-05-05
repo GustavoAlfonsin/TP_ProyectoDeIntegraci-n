@@ -9,10 +9,11 @@ using Cinemachine;
 public class PlayerController : MonoBehaviour
 {
     //PLAYER
-    private float movementSpeed = 5.0f;
+    private float movementSpeed = 3.5f;
     private float gravity = -9.81f;
     private float jumpHeight = 2.0f;
     private CharacterController controller;
+    private Animator _animator;
     private Vector3 playerSpeed;
     private float maxHp, Hp, maxEnergy, energy;
 
@@ -25,6 +26,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        _animator = GetComponentInChildren<Animator>();
         vCam = GetComponentInChildren<CinemachineVirtualCamera>();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -81,7 +83,10 @@ public class PlayerController : MonoBehaviour
     {
         float XMovement = Input.GetAxis("Horizontal");
         float ZMovement = Input.GetAxis("Vertical");
+        _animator.SetFloat("Movimiento X", XMovement);
+        _animator.SetFloat("Movimiento Z", ZMovement);
         Vector3 movement = transform.right * XMovement + transform.forward * ZMovement;
+        movement = movement.normalized;
         controller.Move(movement * movementSpeed * Time.deltaTime);
 
         if (controller.isGrounded && playerSpeed.y < 0)
