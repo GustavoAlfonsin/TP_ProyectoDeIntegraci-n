@@ -6,16 +6,31 @@ using UnityEngine;
 using UnityEngine.UI;
 using Cinemachine;
 
+public enum PlayerStates
+{
+    normal,
+    running,
+    crouching,
+    pointing
+}
+
 public class PlayerController : MonoBehaviour
 {
     //PLAYER
-    private float movementSpeed = 3.5f;
+    private float crouchingSpeed = 1.5f;
+    private float walkSpeed = 3.5f;
+    private float runSpeed = 7f;
     private float gravity = -9.81f;
     private float jumpHeight = 2.0f;
     private CharacterController controller;
     private Animator _animator;
     private Vector3 playerSpeed;
-    private float maxHp, Hp, maxEnergy, energy;
+    private float maxHp, Hp;
+    private PlayerStates _state;
+
+    //Posicion de la camara
+    public Vector3 followPointUp, followPointDown;
+    [SerializeField] Transform camFollowPos;
 
     //MIRA
     private Vector2 originalScale, zoomScale;
@@ -28,20 +43,24 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         _animator = GetComponentInChildren<Animator>();
         vCam = GetComponentInChildren<CinemachineVirtualCamera>();
+        camFollowPos.transform.localPosition = followPointUp;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         maxHp = 100;
         Hp = maxHp;
-        maxEnergy = 50;
-        energy = maxEnergy;
+        _state = PlayerStates.normal;
         UIController.Instance.HpUpdate(Hp);
     }
 
 
     void Update()
     {
+        startRunning();
+        startCrouching();
         moveCharacter();
         apuntarYDesapuntar();
+        
+        
         if (Input.GetKeyDown(KeyCode.Y))
         {
             getDamage(10);
@@ -52,6 +71,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButton(1))
         {
+            _state = PlayerStates.pointing;
             vCam.m_Lens.FieldOfView = Mathf.Lerp(Camera.main.fieldOfView, zoomCapacity,
                                         Time.deltaTime * zoomSpeed);
             normalPoint.gameObject.SetActive(false);
@@ -72,6 +92,9 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            if(_state == PlayerStates.pointing)
+                _state = PlayerStates.normal;
+
             vCam.m_Lens.FieldOfView = Mathf.Lerp(Camera.main.fieldOfView, 60f, 
                                         Time.deltaTime * zoomSpeed);
             normalPoint.gameObject.SetActive(true);
@@ -83,12 +106,33 @@ public class PlayerController : MonoBehaviour
     {
         float XMovement = Input.GetAxis("Horizontal");
         float ZMovement = Input.GetAxis("Vertical");
-        _animator.SetFloat("Movimiento X", XMovement);
-        _animator.SetFloat("Movimiento Z", ZMovement);
+        
         Vector3 movement = transform.right * XMovement + transform.forward * ZMovement;
         movement = movement.normalized;
-        controller.Move(movement * movementSpeed * Time.deltaTime);
 
+        switch (_state)
+        {  
+            case PlayerStates.running:
+                controller.Move(movement * runSpeed * Time.deltaTime);
+                _animator.SetBool("Corriendo", true);
+                _animator.SetBool("Agachado", false);
+                break;
+            case PlayerStates.crouching:
+                controller.Move(movement * crouchingSpeed * Time.deltaTime);
+                _animator.SetBool("Corriendo", false);
+                _animator.SetBool("Agachado", true);
+                break;
+            default:
+                controller.Move(movement * walkSpeed * Time.deltaTime);
+                _animator.SetBool("Corriendo", false);
+                _animator.SetBool("Agachado", false);
+                break;
+        }
+        
+        _animator.SetFloat("Movimiento X", XMovement);
+        _animator.SetFloat("Movimiento Z", ZMovement);
+
+        //Salto
         if (controller.isGrounded && playerSpeed.y < 0)
         {
             playerSpeed.y = 0f;
@@ -112,5 +156,43 @@ public class PlayerController : MonoBehaviour
             //Terminar la partida
         }
         UIController.Instance.HpUpdate(Hp);
+    }
+
+    private void startRunning()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && _state != PlayerStates.pointing)
+        {
+            if (_state != PlayerStates.running)
+            {
+                _state = PlayerStates.running;
+                Debug.Log("EL JUGADOR EMPEZO A CORRER");
+            }
+            else
+            {
+                _state = PlayerStates.normal;
+                Debug.Log("EL JUGADOR DEJO DE CORRER");
+            }
+        }
+    }
+
+    private void startCrouching()
+    {
+        if (Input.GetKeyDown(KeyCode.E) && _state != PlayerStates.pointing)
+        {
+            if (_state != PlayerStates.crouching)
+            {
+                _state = PlayerStates.crouching;
+                camFollowPos.localPosition = Vector3.Lerp(camFollowPos.localPosition,
+                                                    followPointDown, 30 * Time.deltaTime);
+                Debug.Log("EL JUGADOR SE AGACHO");
+            }
+            else
+            {
+                _state = PlayerStates.normal;
+                camFollowPos.localPosition = Vector3.Lerp(camFollowPos.localPosition,
+                                                    followPointUp, 30 * Time.deltaTime);
+                Debug.Log("EL JUGADOR SE LEVANTO");
+            }
+        }
     }
 }

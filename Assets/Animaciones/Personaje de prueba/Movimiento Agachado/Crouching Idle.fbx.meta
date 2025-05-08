@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5a0c9d1580eb8c749ac124178afc847f
+guid: 38af65b02dea0fa49920d3f0e2d4e49d
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -40,13 +40,13 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Right Strafe
+      name: crouching Idle
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 20
+      lastFrame: 75
       wrapMode: 0
-      orientationOffsetY: 60
+      orientationOffsetY: 0
       level: 0
       cycleOffset: 0
       loop: 0
@@ -60,7 +60,7 @@ ModelImporter:
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 0
       heightFromFeet: 0
-      mirror: 0
+      mirror: 1
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events: []
