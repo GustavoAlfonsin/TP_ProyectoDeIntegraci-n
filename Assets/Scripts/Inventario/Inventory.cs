@@ -12,7 +12,7 @@ public class InventorySlot
 public class Inventory : MonoBehaviour
 {
     [SerializeField] private List<InventorySlot> items = new List<InventorySlot>();
-    private int maxSlots = 20;
+    public int maxSlots = 20;
 
     public List<InventorySlot> ItemList { get{ return items; } }
 
