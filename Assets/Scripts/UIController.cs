@@ -9,7 +9,8 @@ public class UIController : MonoBehaviour
     public static UIController Instance;
 
     [SerializeField] TextMeshProUGUI hpTxt;
-    [SerializeField] TextMeshProUGUI energyTxt;
+    [SerializeField] TextMeshProUGUI weaponText;
+    [SerializeField] TextMeshProUGUI ammoTxt;
 
     //INVENTARIO
     public Inventory inventory = new Inventory();
@@ -64,11 +65,6 @@ public class UIController : MonoBehaviour
         hpTxt.text = $"HP: {life}";
     }
 
-    public void EnergyUpdate(float energy)
-    {
-        energyTxt.text = $"Energia: {energy}";
-    }
-
     #region Control del Inventario
     private void initializeSlots()
     {
@@ -93,6 +89,19 @@ public class UIController : MonoBehaviour
             var data = inventory.ItemList[i];
             inventoryList[i].setSlot(data.item._icon, data.quantity);
         }
+    }
+    #endregion
+
+    #region Datos del Arma
+    public void updateWeaponDisplay(string weaponName, int current, int max)
+    {
+        weaponText.text = weaponName;
+        ammoTxt.text = $"{current} / {max}";
+    }
+
+    public void updateAmmoDisplay(int current, int max)
+    {
+        ammoTxt.text = $"{current} / {max}";
     }
     #endregion
 }

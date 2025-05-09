@@ -13,10 +13,18 @@ public enum PlayerStates
     crouching,
     pointing
 }
+[System.Serializable]
+public class Weapon
+{
+    public WeaponItem weaponInfo;
+    public GameObject model;
+    public int currentAmmo;
+    public bool isUnlocked = false;
+}
 
 public class PlayerController : MonoBehaviour
 {
-    //PLAYER
+    #region propiedades Jugador
     private float crouchingSpeed = 1.5f;
     private float walkSpeed = 3.5f;
     private float runSpeed = 7f;
@@ -27,7 +35,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 playerSpeed;
     private float maxHp, Hp;
     private PlayerStates _state;
+    #endregion
 
+    #region Camara y mira
     //Posicion de la camara
     public Vector3 followPointUp, followPointDown;
     [SerializeField] Transform camFollowPos;
@@ -37,7 +47,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Image normalPoint, aimPoint;
     [SerializeField] private float zoomSpeed, zoomCapacity;
     [HideInInspector] public CinemachineVirtualCamera vCam;
+    #endregion
 
+    #region Manejo de las armas
+    public List<Weapon> weapons;
+    public int currentWeaponIndex = -1;
+
+    #endregion
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -195,4 +211,78 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    #region Métodos para el manejo de las armas
+    private void handleWeaponSwitch()
+    {
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll != 0)
+        {
+            int direction = scroll > 0 ? 1 : -1;
+            int newIndex = GetNextUnlockedWeaponIndex(direction); 
+            if (newIndex != -1 && newIndex != currentWeaponIndex)
+            {
+                EquipWeapon(newIndex);
+            }
+        }
+    }
+
+    private void handleReload()
+    {
+        if (Input.GetKeyDown(KeyCode.R) && currentWeaponIndex != -1)
+        {
+            Weapon currentWeapon = weapons[currentWeaponIndex];
+            int needed = currentWeapon.weaponInfo.maxAmmo - currentWeapon.currentAmmo;
+            if (needed > 0)
+            {
+                int taken = UIController.Instance.inventory.TakeAmmo(currentWeapon.weaponInfo._ammoType, needed);
+                currentWeapon.currentAmmo += taken;
+
+                UIController.Instance.updateAmmoDisplay(currentWeapon.currentAmmo, currentWeapon.weaponInfo.maxAmmo);
+            }
+        }
+    }
+
+    private void EquipWeapon(int newIndex)
+    {
+        if (currentWeaponIndex != -1)
+        {
+            weapons[currentWeaponIndex].model.SetActive(false);
+        }
+        currentWeaponIndex = newIndex;
+        Weapon weapon = weapons[newIndex];
+        weapon.model.SetActive(true);
+
+        UIController.Instance.updateWeaponDisplay(weapon.weaponInfo.name, weapon.currentAmmo, weapon.weaponInfo.maxAmmo);
+    }
+
+    private int GetNextUnlockedWeaponIndex(int direction)
+    {
+        int startIndex = currentWeaponIndex;
+        int count = weapons.Count;
+
+        for (int i = 1; 0 < count, i++)
+        {
+            int index = (startIndex + i * direction + count) % count;
+            if (weapons[index].isUnlocked)
+            {
+                return index;
+            }
+        }
+        return startIndex;
+    }
+
+    public void UnlockWeapon(string weaponName)
+    {
+        int index = weapons.FindIndex(w => w.weaponInfo.name == weaponName);
+        if (index != -1)
+        {
+            weapons[index].isUnlocked = true;
+            if (currentWeaponIndex == -1)
+            {
+                EquipWeapon(index);
+            }
+        }
+    }
+    #endregion
 }

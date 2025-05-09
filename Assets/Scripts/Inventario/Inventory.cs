@@ -190,4 +190,25 @@ public class Inventory
 
         return true;
     }
+
+    public int TakeAmmo(AmmoType type, int amountNeeded)
+    {
+        int totalTaken = 0;
+        foreach (var item in items)
+        {
+            if (item.item is AmmoItem ammo && ammo._AmmoType == type && amountNeeded > 0)
+            {
+                int take = Mathf.Min(item.quantity, amountNeeded);
+                item.quantity -= take;
+                totalTaken += take;
+                amountNeeded -= take;
+
+                if (item.quantity == 0)
+                {
+                    items.RemoveAt(0); //Tengo que revisar
+                }
+            }
+        }
+        return totalTaken;
+    }
 }
