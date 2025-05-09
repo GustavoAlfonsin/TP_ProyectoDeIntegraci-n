@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47926db575cbe4d48830605c2d74c4a3, type: 3}
+  m_Name: Vendas
+  m_EditorClassIdentifier: 
+  ingredients:
+  - item: {fileID: 11400000, guid: 3f193eb37d892b7479ad8569ec649132, type: 2}
+    quantity: 2
+  resultItem: {fileID: 11400000, guid: 6df4ffe8372bbd74580c666bbdc9d400, type: 2}
+  resultQuantity: 1

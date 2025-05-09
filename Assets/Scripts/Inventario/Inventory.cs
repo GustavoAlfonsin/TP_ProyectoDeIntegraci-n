@@ -9,15 +9,16 @@ public class InventorySlot
     public InventoryItem item;
     public int quantity;
 }
-public class Inventory : MonoBehaviour
+public class Inventory 
 {
     [SerializeField] private List<InventorySlot> items = new List<InventorySlot>();
     public int maxSlots = 20;
 
     public List<InventorySlot> ItemList { get{ return items; } }
 
-    public void AddItem(InventoryItem newItem, int amount = 1)
+    public int AddItem(InventoryItem newItem, int amount = 1)
     {
+        int remaining = amount;
         if (newItem is AmmoItem ammoItem)
         {
             int amountToAdd = amount;
@@ -30,9 +31,10 @@ public class Inventory : MonoBehaviour
                     int addNow = Mathf.Min(spaceLeft, amountToAdd);
                     slot.quantity += addNow;
                     amountToAdd -= addNow;
+                    remaining -= addNow;
 
                     if (amountToAdd <= 0)
-                        return;
+                        return amount;
                 }
             }
 
@@ -41,6 +43,7 @@ public class Inventory : MonoBehaviour
                 int addNow = Mathf.Min(ammoItem.maxAmountPerStack, amountToAdd);
                 items.Add(new InventorySlot { item = newItem, quantity = addNow });
                 amountToAdd -= addNow;
+                remaining -= addNow;
             }
         }
         else if (isStackable(newItem))
@@ -55,7 +58,7 @@ public class Inventory : MonoBehaviour
                 if (items.Count >= maxSlots)
                 {
                     Debug.Log("INVENTARIO LLENO");
-                    return;
+                    return amount;
                 }
                 items.Add(new InventorySlot { item = newItem, quantity = amount });
             }
@@ -67,11 +70,12 @@ public class Inventory : MonoBehaviour
                 if (items.Count >= maxSlots)
                 {
                     Debug.Log("INVENTARIO LLENO");
-                    return;
+                    return amount;
                 }
                 items.Add(new InventorySlot { item = newItem, quantity = 1});
             }
         }
+        return amount - remaining;
     }
 
     private bool isStackable(InventoryItem item)
