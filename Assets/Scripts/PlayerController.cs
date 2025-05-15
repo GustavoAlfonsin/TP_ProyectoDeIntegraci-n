@@ -25,16 +25,16 @@ public class Weapon
 public class PlayerController : MonoBehaviour
 {
     #region propiedades Jugador
+
     private float crouchingSpeed = 1.5f;
     private float walkSpeed = 3.5f;
     private float runSpeed = 7f;
-    private float gravity = -9.81f;
-    private float jumpHeight = 2.0f;
     private CharacterController controller;
     private Animator _animator;
     private Vector3 playerSpeed;
     private float maxHp, Hp;
     private PlayerStates _state;
+
     #endregion
 
     #region Camara y mira
@@ -147,19 +147,6 @@ public class PlayerController : MonoBehaviour
         
         _animator.SetFloat("Movimiento X", XMovement);
         _animator.SetFloat("Movimiento Z", ZMovement);
-
-        //Salto
-        if (controller.isGrounded && playerSpeed.y < 0)
-        {
-            playerSpeed.y = 0f;
-        }
-        playerSpeed.y += gravity * Time.deltaTime;
-        controller.Move(playerSpeed * Time.deltaTime);
-
-        if (Input.GetKeyDown(KeyCode.Space) && controller.isGrounded)
-        {
-            playerSpeed.y += Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
     }
 
     public void getDamage(float injury)
@@ -261,7 +248,7 @@ public class PlayerController : MonoBehaviour
         int startIndex = currentWeaponIndex;
         int count = weapons.Count;
 
-        for (int i = 1; 0 < count, i++)
+        for (int i = 1; 0 < count; i++)
         {
             int index = (startIndex + i * direction + count) % count;
             if (weapons[index].isUnlocked)
